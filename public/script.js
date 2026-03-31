@@ -43,6 +43,8 @@ async function saveData() {
 
 async function loadResumes() {
   const resumeList = document.getElementById("resumeList");
+  if (!resumeList) return;
+
   resumeList.innerHTML = "Loading...";
 
   try {
