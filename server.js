@@ -1,83 +1,87 @@
-async function saveData() {
-  const msg = document.getElementById("msg");
-  msg.innerText = "Saving...";
+const express = require("express");
+const mongoose = require("mongoose");
+const multer = require("multer");
+const cors = require("cors");
+const path = require("path");
 
-  const formData = new FormData();
-  formData.append("name", document.getElementById("name").value);
-  formData.append("email", document.getElementById("email").value);
-  formData.append("phone", document.getElementById("phone").value);
-  formData.append("education", document.getElementById("education").value);
-  formData.append("skills", document.getElementById("skills").value);
-  formData.append("projects", document.getElementById("projects").value);
+const app = express();
 
-  const photoFile = document.getElementById("photo").files[0];
-  if (photoFile) {
-    formData.append("photo", photoFile);
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected ✅"))
+  .catch(err => console.log(err));
+
+// Schema
+const resumeSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  phone: String,
+  education: String,
+  skills: String,
+  projects: String,
+  photo: String
+});
+
+const Resume = mongoose.model("Resume", resumeSchema);
+
+// Multer setup (for file upload)
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + "-" + file.originalname;
+    cb(null, uniqueName);
   }
+});
 
+const upload = multer({ storage: storage });
+
+// Routes
+
+// Save Resume
+app.post("/save", upload.single("photo"), async (req, res) => {
   try {
-    const response = await fetch("/save", {
-      method: "POST",
-      body: formData
+    const newResume = new Resume({
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      education: req.body.education,
+      skills: req.body.skills,
+      projects: req.body.projects,
+      photo: req.file ? req.file.filename : null
     });
 
-    const result = await response.text();
-    msg.innerText = result;
+    await newResume.save();
 
-    if (response.ok) {
-      document.getElementById("name").value = "";
-      document.getElementById("email").value = "";
-      document.getElementById("phone").value = "";
-      document.getElementById("education").value = "";
-      document.getElementById("skills").value = "";
-      document.getElementById("projects").value = "";
-      document.getElementById("photo").value = "";
-
-      loadResumes();
-    }
-  } catch (error) {
-    console.log(error);
-    msg.innerText = "Error saving data";
+    res.send("Saved Successfully ✅");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error saving data");
   }
-}
+});
 
-async function loadResumes() {
-  const resumeList = document.getElementById("resumeList");
-  if (!resumeList) return;
-
-  resumeList.innerHTML = "Loading...";
-
+// Get all resumes
+app.get("/resumes", async (req, res) => {
   try {
-    const response = await fetch("/resumes");
-    const data = await response.json();
-
-    if (!Array.isArray(data) || data.length === 0) {
-      resumeList.innerHTML = "<p>No resumes saved yet.</p>";
-      return;
-    }
-
-    let html = "";
-    data.forEach((item) => {
-      html += `
-        <div class="card">
-          <h3>${item.name || ""}</h3>
-          <p><b>Email:</b> ${item.email || ""}</p>
-          <p><b>Phone:</b> ${item.phone || ""}</p>
-          <p><b>Education:</b> ${item.education || ""}</p>
-          <p><b>Skills:</b> ${item.skills || ""}</p>
-          <p><b>Projects:</b> ${item.projects || ""}</p>
-          ${item.photo ? `<img src="/uploads/${item.photo}" alt="Photo">` : ""}
-        </div>
-      `;
-    });
-
-    resumeList.innerHTML = html;
-  } catch (error) {
-    console.log(error);
-    resumeList.innerHTML = "<p>Error loading resumes.</p>";
+    const data = await Resume.find().sort({ _id: -1 });
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Error fetching data");
   }
-}
+});
 
+// Start Server
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
