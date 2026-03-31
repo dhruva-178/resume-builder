@@ -1,23 +1,8 @@
-function updatePreview() {
-  document.getElementById("pName").innerText = document.getElementById("name").value;
-  document.getElementById("pEmail").innerText = document.getElementById("email").value;
-  document.getElementById("pPhone").innerText = document.getElementById("phone").value;
-  document.getElementById("pEducation").innerText = document.getElementById("education").value;
-  document.getElementById("pSkills").innerText = document.getElementById("skills").value;
-  document.getElementById("pProjects").innerText = document.getElementById("projects").value;
-}
-
-function previewImage(event) {
-  const reader = new FileReader();
-  reader.onload = function() {
-    document.getElementById("previewPhoto").src = reader.result;
-  }
-  reader.readAsDataURL(event.target.files[0]);
-}
-
 async function saveData() {
-  const formData = new FormData();
+  const msg = document.getElementById("msg");
+  msg.innerText = "Saving...";
 
+  const formData = new FormData();
   formData.append("name", document.getElementById("name").value);
   formData.append("email", document.getElementById("email").value);
   formData.append("phone", document.getElementById("phone").value);
@@ -25,35 +10,70 @@ async function saveData() {
   formData.append("skills", document.getElementById("skills").value);
   formData.append("projects", document.getElementById("projects").value);
 
-  const file = document.getElementById("photo").files[0];
-  if (file) formData.append("photo", file);
+  const photoFile = document.getElementById("photo").files[0];
+  if (photoFile) {
+    formData.append("photo", photoFile);
+  }
 
-  const res = await fetch("http://localhost:5000/save", {
-    method: "POST",
-    body: formData
-  });
+  try {
+    const response = await fetch("/save", {
+      method: "POST",
+      body: formData
+    });
 
-  const data = await res.text();
-  alert(data);
+    const result = await response.text();
+    msg.innerText = result;
 
-  loadResumes();
-}
+    if (response.ok) {
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("phone").value = "";
+      document.getElementById("education").value = "";
+      document.getElementById("skills").value = "";
+      document.getElementById("projects").value = "";
+      document.getElementById("photo").value = "";
 
-function downloadPDF() {
-  const element = document.querySelector(".resume");
-  html2pdf().from(element).save("Resume.pdf");
+      loadResumes();
+    }
+  } catch (error) {
+    console.log(error);
+    msg.innerText = "Error saving data";
+  }
 }
 
 async function loadResumes() {
-  const res = await fetch("http://localhost:5000/resumes");
-  const data = await res.json();
+  const resumeList = document.getElementById("resumeList");
+  resumeList.innerHTML = "Loading...";
 
-  let html = "";
-  data.forEach(r => {
-    html += `<div><b>${r.name}</b><br>${r.email}</div>`;
-  });
+  try {
+    const response = await fetch("/resumes");
+    const data = await response.json();
 
-  document.getElementById("list").innerHTML = html;
+    if (!Array.isArray(data) || data.length === 0) {
+      resumeList.innerHTML = "<p>No resumes saved yet.</p>";
+      return;
+    }
+
+    let html = "";
+    data.forEach((item) => {
+      html += `
+        <div class="card">
+          <h3>${item.name || ""}</h3>
+          <p><b>Email:</b> ${item.email || ""}</p>
+          <p><b>Phone:</b> ${item.phone || ""}</p>
+          <p><b>Education:</b> ${item.education || ""}</p>
+          <p><b>Skills:</b> ${item.skills || ""}</p>
+          <p><b>Projects:</b> ${item.projects || ""}</p>
+          ${item.photo ? `<img src="/uploads/${item.photo}" alt="Photo">` : ""}
+        </div>
+      `;
+    });
+
+    resumeList.innerHTML = html;
+  } catch (error) {
+    console.log(error);
+    resumeList.innerHTML = "<p>Error loading resumes.</p>";
+  }
 }
 
 window.onload = loadResumes;

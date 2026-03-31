@@ -1,76 +1,63 @@
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
 }
 
 .container {
   display: flex;
-  height: 100vh;
+  gap: 20px;
+  padding: 20px;
 }
 
-/* FORM */
-.form-box {
-  width: 40%;
-  padding: 30px;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(15px);
-  color: white;
-  overflow-y: auto;
+.form-section,
+.preview-section {
+  flex: 1;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-input, textarea {
+input,
+textarea,
+button {
   width: 100%;
-  margin: 10px 0;
+  margin-bottom: 12px;
   padding: 12px;
+  box-sizing: border-box;
   border-radius: 8px;
-  border: none;
+  border: 1px solid #ccc;
+}
+
+textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
 button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  background: #00c6ff;
+  background: #2563eb;
   color: white;
+  border: none;
   cursor: pointer;
 }
 
 button:hover {
-  background: #0072ff;
+  background: #1d4ed8;
 }
 
-/* PREVIEW */
-.preview-box {
-  width: 60%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.resume {
-  background: white;
-  padding: 20px;
-  width: 350px;
+.card {
+  border: 1px solid #ddd;
+  padding: 12px;
   border-radius: 10px;
+  margin-bottom: 12px;
+  background: #fafafa;
 }
 
-.resume img {
+.card img {
   width: 100px;
   height: 100px;
-  border-radius: 50%;
-}
-
-/* SAVED */
-.saved {
-  margin-top: 20px;
-}
-
-.saved div {
-  background: rgba(255,255,255,0.2);
-  padding: 10px;
-  margin: 5px;
+  object-fit: cover;
+  margin-top: 10px;
   border-radius: 8px;
 }
