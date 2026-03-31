@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pro Resume Builder</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- PDF LIBRARY -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- FORM -->
+  <div class="form-box">
+    <h2>✨ Resume Builder</h2>
+
+    <input type="text" id="name" placeholder="Full Name" oninput="updatePreview()">
+    <input type="email" id="email" placeholder="Email" oninput="updatePreview()">
+    <input type="text" id="phone" placeholder="Phone" oninput="updatePreview()">
+
+    <textarea id="education" placeholder="Education" oninput="updatePreview()"></textarea>
+    <textarea id="skills" placeholder="Skills" oninput="updatePreview()"></textarea>
+    <textarea id="projects" placeholder="Projects" oninput="updatePreview()"></textarea>
+
+    <input type="file" id="photo" onchange="previewImage(event)">
+
+    <button onclick="saveData()">Save ☁️</button>
+    <button onclick="downloadPDF()">Download PDF 📄</button>
+
+    <div class="saved">
+      <h3>Saved Resumes</h3>
+      <div id="list"></div>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="preview-box">
+    <div class="resume">
+      <img id="previewPhoto" src="">
+      <h2 id="pName">Your Name</h2>
+      <p id="pEmail">Email</p>
+      <p id="pPhone">Phone</p>
+
+      <h3>Education</h3>
+      <p id="pEducation"></p>
+
+      <h3>Skills</h3>
+      <p id="pSkills"></p>
+
+      <h3>Projects</h3>
+      <p id="pProjects"></p>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

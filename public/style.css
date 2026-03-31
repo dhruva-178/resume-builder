@@ -1,0 +1,76 @@
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+/* FORM */
+.form-box {
+  width: 40%;
+  padding: 30px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  color: white;
+  overflow-y: auto;
+}
+
+input, textarea {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #00c6ff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0072ff;
+}
+
+/* PREVIEW */
+.preview-box {
+  width: 60%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.resume {
+  background: white;
+  padding: 20px;
+  width: 350px;
+  border-radius: 10px;
+}
+
+.resume img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+
+/* SAVED */
+.saved {
+  margin-top: 20px;
+}
+
+.saved div {
+  background: rgba(255,255,255,0.2);
+  padding: 10px;
+  margin: 5px;
+  border-radius: 8px;
+}
