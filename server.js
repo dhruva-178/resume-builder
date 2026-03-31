@@ -2,25 +2,28 @@ const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const cors = require("cors");
+const fs = require("fs");
 const path = require("path");
 
 const app = express();
 
-// Middleware
+// make uploads folder if missing
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
 app.use(express.static("public"));
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(uploadsDir));
 
-// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB Connected ✅"))
-  .catch(err => console.log(err));
+  .catch((err) => console.log("MongoDB Error:", err));
 
-// Schema
 const resumeSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -33,22 +36,17 @@ const resumeSchema = new mongoose.Schema({
 
 const Resume = mongoose.model("Resume", resumeSchema);
 
-// Multer setup (for file upload)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
+    cb(null, Date.now() + "-" + file.originalname);
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-// Routes
-
-// Save Resume
 app.post("/save", upload.single("photo"), async (req, res) => {
   try {
     const newResume = new Resume({
@@ -58,32 +56,28 @@ app.post("/save", upload.single("photo"), async (req, res) => {
       education: req.body.education,
       skills: req.body.skills,
       projects: req.body.projects,
-      photo: req.file ? req.file.filename : null
+      photo: req.file ? req.file.filename : ""
     });
 
     await newResume.save();
-
-    res.send("Saved Successfully ✅");
+    res.status(200).send("Saved Successfully ✅");
   } catch (err) {
-    console.log(err);
+    console.log("Save Error:", err);
     res.status(500).send("Error saving data");
   }
 });
 
-// Get all resumes
 app.get("/resumes", async (req, res) => {
   try {
     const data = await Resume.find().sort({ _id: -1 });
     res.json(data);
   } catch (err) {
-    console.log(err);
-    res.status(500).send("Error fetching data");
+    console.log("Fetch Error:", err);
+    res.status(500).json({ error: "Error fetching resumes" });
   }
 });
 
-// Start Server
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
